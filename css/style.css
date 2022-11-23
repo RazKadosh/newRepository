@@ -1,0 +1,26 @@
+body {
+    background: rgba(46, 46, 46, 0.952);
+    color: white;
+}
+
+h1 {
+    text-align: center;
+}
+
+.show-cells{
+    background-color: black;
+}
+.hide-cells{
+   background-color: antiquewhite;
+}
+td {
+   background-color: grey;
+    width: 30px;
+    height: 30px;
+}
+
+table {
+ 
+    margin: auto;
+}
+
