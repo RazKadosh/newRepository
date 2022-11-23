@@ -10,8 +10,21 @@
 </head>
 
 <body onload="onInit()">
-    <h1>Mine Sweeper </h1>
-    <div class="board"></div>
+    <h1>MINE SWEEPER</h1>
+    <h2>Your time: </h2>
+    <h2 class="time">0.000</h2>
+    <button onclick=" restart()">😊</button>
+    <br>
+    <button onclick="changeLevel('easy')">Easy</button>
+    <button onclick="changeLevel('medium')">Medium</button>
+    <button onclick="changeLevel('hard')">Hard</button>
+    
+    <table>
+        <tbody class="board">
+
+        </tbody>
+    </table>
+    <script src="js/utils.js"></script>
     <script src="js/main.js"></script>
 </body>
 
