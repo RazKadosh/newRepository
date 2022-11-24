@@ -1,105 +1,108 @@
 'use strict'
-const MINE = '💥'
-const EMPTY = ''
+
+
+const MOKESH = '💣'
+const FLOOR = ''
 const FLAG = '🚩'
+const LIFE = '❤️'
 
-var gInterval
-var gStartTime
 var gTime
+var gStartTime
+var gInterval
 var gBoard
-var gLevel = {
-    SIZE: 4,
-    MINES: 2
-};
-
+var gLevel
 var gGame = {
-    isOn: false,
+    isOn: true,
     shownCount: 0,
     markedCount: 0,
     secsPassed: 0
 }
 
+ gLevel = {
+    SIZE: 4,
+    MINES: 2,
+    LIFE:1
+}
+
+
 function onInit() {
-    gBoard = buildBoard()
+    if (gInterval) clearInterval(gInterval)
+    gGame.markedCount = 0
+    gGame.shownCount = 0
+    gBoard = buildBoard(gLevel.SIZE)
     renderBoard(gBoard)
+    resetTime()
 
-}
-function changeLevel(level) {
-    if (level === 'easy') gLevel.SIZE = 4
-    if (level === 'medium') gLevel.SIZE = 6
-    if (level === 'hard') gLevel.SIZE = 8
-    
-    onInit(gLevel.SIZE)
-
-
-}
-
-function buildBoard() {
-    var size = gLevel.SIZE
-    const board = []
-    for (var i = 0; i < size; i++) {
-        board.push([])
-        for (var j = 0; j < size; j++) {
-            board[i][j] = createCell()
-        }
-    }
-    for (var i = 0; i < gLevel.MINES; i++) {
-        const idxI = getRandomInt(0, gLevel.SIZE)
-        const idxJ = getRandomInt(0, gLevel.SIZE)
-        board[idxI][idxJ].isMine = true
-
-    }
-    setMinesNegsCount(board)
-    return board
-}
-
-function createCell() {
-    const cell = {
-        minesAroundCount: 0,
-        isShown: false,
-        isMine: false,
-        isMarked: false
-    }
-    return cell
 }
 
 function setMinesNegsCount(board) {
-    for (var i = 0; i < gLevel.SIZE; i++) {
-        for (var j = 0; j < gLevel.SIZE; j++) {
+    for (var i = 0; i < board.length; i++) {
+        for (var j = 0; j < board[0].length; j++) {
             const cell = board[i][j]
-            cell.minesAroundCount = countBombs(board, i, j)
+            if (!cell.isMine) {
+                cell.minesAroundCount = countMokeshAround(board, i, j)
+            }
         }
     }
 }
 
-function countBombs(board, rowIdx, colIdx) {
-    var count = 0
-    for (var i = rowIdx - 1; i <= rowIdx + 1; i++) {
+function countMokeshAround(board, cellI, cellJ) {
+    var neighborsCount = 0
+    for (var i = cellI - 1; i <= cellI + 1; i++) {
         if (i < 0 || i >= board.length) continue
-        for (var j = colIdx - 1; j <= colIdx + 1; j++) {
+        for (var j = cellJ - 1; j <= cellJ + 1; j++) {
+            if (i === cellI && j === cellJ) continue
             if (j < 0 || j >= board[i].length) continue
-            if (i === rowIdx && j === colIdx) continue
-            if (board[i][j].isMine) count++
-            console.log(count)
+            if (board[i][j].isMine) neighborsCount++
         }
     }
-    return count
+    console.log('count:', neighborsCount)
+    return neighborsCount
 }
+
+
 
 function onCellClicked(elCell) {
-
-    const location = {
+    // if (cell.isMarked) return
+    if (!gGame.isOn) return
+    var location = {
         i: elCell.dataset.i,
         j: elCell.dataset.j
     }
+    if (gGame.shownCount === 0) {
+        startTimer()
+
+    }
     const cell = gBoard[location.i][location.j]
+    if (cell.isMarked) return
+    if (cell.isShown) return
     cell.isShown = true
+    gGame.shownCount++
+    console.log('gGame.shownCount:', gGame.shownCount)
     renderCell(location)
-    startTimer()
+
+    if (cell.isMine) {
+        if (gLevel.LIFE > 0)
+            gLevel.LIFE--
+            createLife()
+
+            if (gInterval) clearInterval(gInterval)
+            gameOver()
+    }
+
+    if (gGame.isShown === (gLevel.SIZE ** 2 - gGame.markedCount)) {
+        victory()
+    }
+
+
 }
 
 
 function restart() {
+    gGame.isOn = true
+    createLife(gLevel.LIFE)
+    var elSmile = document.querySelector('.smile')
+    elSmile.innerText = '😊'
     resetTime()
     onInit()
 }
@@ -119,46 +122,73 @@ function resetTime() {
     elH2.innerText = '0.000'
 }
 
-function renderBoard(board) {
-    var strHTML = ''
-    for (var i = 0; i < board.length; i++) {
-        strHTML += '<tr>'
-        for (var j = 0; j < board[0].length; j++) {
-            var cell = board[i][j]
-            var str
-            var className = `cell cell-${i}-${j}`
+function changeLevel(level) {
 
-            if (cell.isShown) {
-                str = (cell.isMine) ? MINE : cell.minesAroundCount
-                if (!cell.minesAroundCount) str = EMPTY
-
-            } else {
-                str = EMPTY
-            }
-
-            strHTML += `<td class="${className}" onclick="onCellClicked(this)" data-i="${i}" data-j="${j}">${str}</td>`
-
-        }
-        strHTML += '</tr>'
+    if (level === 'easy') {
+        gLevel.SIZE = 6
+        gLevel.MINES = 5
+        gLevel.LIFE=1
     }
 
-    const elContainer = document.querySelector('.board')
-    elContainer.innerHTML = strHTML
+    if (level === 'medium') {
+        gLevel.SIZE = 8
+        gLevel.MINES = 9
+        gLevel.LIFE= 3
+       
+    }
+    if (level === 'hard') {
+        gLevel.SIZE = 10
+        gLevel.MINES = 20
+        gLevel.LIFE = 5
+    }
+    gBoard = buildBoard()
+    renderBoard(gBoard)
+    createLife()
+  
 
 }
 
-function renderCell(location) {
-    var str
+function createLife(){
+    const elLife=document.querySelector('.life span')
+    elLife.innerText=LIFE.repeat (gLevel.LIFE)
+}
+
+function victory() {
+    gGame.isOn = false
+    var elSmile = document.querySelector('.smile')
+    elSmile.innerText = '🤩'
+}
+
+function gameOver() {
+    gGame.isOn = false
+    var elSmile = document.querySelector('.smile')
+    elSmile.innerText = '😵'
+
+}
+
+
+
+
+function cellMarked(elFlag, location) {
+    if (!gGame.isOn) return
+    var location = {
+        i: elFlag.dataset.i,
+        j: elFlag.dataset.j
+    }
     const cell = gBoard[location.i][location.j]
     if (cell.isShown) {
-        str = (cell.isMine) ? MINE : cell.minesAroundCount
+        return
     }
-    const elCell = document.querySelector(`.cell-${location.i}-${location.j}`)
-    elCell.innerText = str
-}
+    if (cell.isMarked === false) {
+        elFlag.innerText = FLAG
+        gGame.markedCount++
+    }
+    if (cell.isMarked) {
+        elFlag.innerText = ''
+        gGame.markedCount--
+    }
+    console.log(' gGame.markedCount:', gGame.markedCount)
 
-function getRandomInt(min, max) {
-    min = Math.ceil(min);
-    max = Math.floor(max);
-    return Math.floor(Math.random() * (max - min)) + min;
+    cell.isMarked = !cell.isMarked
+
 }

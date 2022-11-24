@@ -1,34 +1,31 @@
 body {
-    background: rgba(75, 95, 43, 0.952);
-    color: rgb(18, 16, 16);
+    background: rgba(46, 46, 46, 0.952);
+    color: white;
     text-align: center;
 }
 button{
-    margin-bottom: 10px;
-    background-color: rgb(255, 183, 50) ;
-    color: black;
-    border-radius: 50%;
-    height: 60px;
     width: 60px;
+    height: 60px;
+    margin-bottom: 50px;
+    border-radius: 50%;
 }
 
-h1 {
-    color:rgb(249, 179, 27) 
+button:hover{
+    cursor: pointer;
 }
 
 .cell{
-    border-color: black;
+color: blue;
+font-size:30px;
 }
 
 td {
-   background-color: rgba(255, 255, 255, 0.571);
-    width: 30px;
-    height: 30px;
-   
+   background-color: aqua;
+    width:50px;
+    height:50px;
 }
 
 table {
     margin: auto;
-  
 }
 

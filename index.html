@@ -6,24 +6,26 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="css/style.css">
-    <title>Mine Sweeper</title>
+    <title>Document</title>
 </head>
 
 <body onload="onInit()">
-    <h1>MINE SWEEPER</h1>
+    <h1>let's play</h1>
     <h2>Your time: </h2>
     <h2 class="time">0.000</h2>
-    <button onclick=" restart()">😊</button>
+    <h2 class="life">life:<span>❤️</span></h2>
+
+    <button class="smile" onclick=" restart()">😊</button>
     <br>
     <button onclick="changeLevel('easy')">Easy</button>
     <button onclick="changeLevel('medium')">Medium</button>
     <button onclick="changeLevel('hard')">Hard</button>
-    
-    <table>
-        <tbody class="board">
+    <table oncontextmenu="return false">
+        <tbody class="board-container">
 
         </tbody>
     </table>
+    <div class="board-game"></div>
     <script src="js/utils.js"></script>
     <script src="js/main.js"></script>
 </body>
