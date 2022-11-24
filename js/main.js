@@ -8,15 +8,15 @@ const LOSE = '😭'
 const WIN = '🏆'
 
 
-
+var gLevel
 var gInterval
 var gStartTime
 var gBoard
 
-var gLevel = {
+gLevel = {
     SIZE: 4,
     MINES: 2,
-    LIFE: 1
+    LIFE: 3
 };
 
 var gGame = {
@@ -28,6 +28,7 @@ var gGame = {
 
 function onInit() {
     if (gInterval) clearInterval(gInterval)
+    createLife(gLevel.LIFE)
     gBoard = buildBoard()
     renderBoard(gBoard)
 }
@@ -56,26 +57,24 @@ function countMines(board, rowIdx, colIdx) {
 
 function onCellClicked(elCell) {
 
-    if (!gGame.isOn) return
+    if (!gGame.isOn) {
+        placeMine()
+        startTimer()
+        gGame.isOn = true
+    }
     var location = {
         i: elCell.dataset.i,
         j: elCell.dataset.j
     }
     const cell = gBoard[location.i][location.j]
-    const cellI = +location.i
-    const cellJ = +location.j
-
-    if (cell.countMokeshAround === 0 && !cell.isMine) {
-        expandShown(gBoard, cellI, cellJ)
-    }
     if (gGame.shownCount === 0) {
-        startTimer()
+
     }
-    if (cell.isMarked) return
+    if (cell.minesAroundCount === 0 && !cell.isMine)
+        if (cell.isMarked) return
     if (cell.isShown) return
     cell.isShown = true
     gGame.shownCount++
-    console.log('gGame.shownCount:', gGame.shownCount)
     renderCell(location)
 
     if (cell.isMine) {
@@ -117,7 +116,7 @@ function changeLevel(level) {
         gLevel.SIZE = 4
         gLevel.MINES = 2
         gGame.LIFE = 2
-    } 
+    }
     if (level === 'hard') {
         gLevel.SIZE = 8
         gLevel.MINES = 14
@@ -128,9 +127,9 @@ function changeLevel(level) {
         gLevel.MINES = 32
         gGame.LIFE = 3
     }
-    createLife()
     gBoard = buildBoard()
     renderBoard(gBoard)
+    createLife()
 }
 
 function buildBoard() {
@@ -142,14 +141,19 @@ function buildBoard() {
             board[i][j] = createCell()
         }
     }
+
+    return board
+}
+
+function placeMine() {
     for (var i = 0; i < gLevel.MINES; i++) {
         const idxI = getRandomInt(0, gLevel.SIZE)
         const idxJ = getRandomInt(0, gLevel.SIZE)
-        board[idxI][idxJ].isMine = true
+        gBoard[idxI][idxJ].isMine = true
     }
-    setMinesNegsCount(board)
-    return board
+    setMinesNegsCount(gBoard)
 }
+
 
 function createCell() {
     const cell = {
@@ -161,14 +165,12 @@ function createCell() {
     return cell
 }
 
-
-
 function restart() {
-    gGame.isOn = true
     var elemoji = document.querySelector('.emoji')
     elemoji.innerText = '😎'
     resetTime()
     onInit()
+    createLife(gLevel.LIFE)
 }
 
 function startTimer() {
@@ -193,11 +195,11 @@ function renderBoard(board) {
             var cell = board[i][j]
             var str
             var className = `cell cell-${i}-${j}`
-            
+
             if (cell.isShown) {
                 str = (cell.isMine) ? MINE : cell.minesAroundCount
                 if (!cell.minesAroundCount) str = EMPTY
-                
+
             } else {
                 str = EMPTY
             }
@@ -223,6 +225,7 @@ function checkGameOver() {
     if (gGame.shownCount === (gLevel.SIZE ** 2) - gLevel.MINES && gGame.markedCount === gLevel.MINES) victory()
 }
 
+
 function createLife() {
     const elLife = document.querySelector('.try span')
     elLife.innerText = LIFE.repeat(gLevel.LIFE)
@@ -231,14 +234,14 @@ function createLife() {
 function victory() {
     gGame.isOn = false
     var elSmile = document.querySelector('.emoji')
-    elSmile.innerText = '🏆'
+    elSmile.innerText = WIN
     if (gInterval) clearInterval(gInterval)
 }
 
 function gameOver() {
     gGame.isOn = false
     var elSmile = document.querySelector('.emoji')
-    elSmile.innerText = '😭'
+    elSmile.innerText = LOSE
 
 }
 
