@@ -5,14 +5,16 @@ body {
 
 .emoji{
 background-color:rgba(75, 95, 43, 0.952);
+width: auto;
+height: auto;
 }
 
 button{
     margin-bottom: 10px;
     background-color: rgb(255, 183, 50) ;
-    border-radius: 50%;
-    height: 60px;
-    width: 60px;
+    border-radius: 10%;
+    height: 30px;
+    width: 80px;
 }
 
 h1 {
